@@ -1,11 +1,17 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { contrastRatio, evaluate, type Verdicts } from "@/lib/contrast";
 import { parseColor, type RGB } from "@/lib/parseColor";
 
-const DEFAULT_FOREGROUND = "#1a1a1a";
-const DEFAULT_BACKGROUND = "#ffffff";
+export const DEFAULT_FOREGROUND = "#1a1a1a";
+export const DEFAULT_BACKGROUND = "#ffffff";
+
+// Fallback RGB values used only if the defaults above ever fail to parse
+// (e.g. a future typo). Correctness of the defaults is enforced by
+// app/ContrastChecker.defaults.test.ts, not by throwing at runtime.
+const FALLBACK_FOREGROUND_RGB: RGB = { r: 26, g: 26, b: 26 };
+const FALLBACK_BACKGROUND_RGB: RGB = { r: 255, g: 255, b: 255 };
 
 const INVALID_COLOUR_MESSAGE =
   "Not a valid colour. Try a hex code (#ffffff), rgb(), or hsl() value.";
@@ -21,7 +27,7 @@ type VerdictRow = {
   key: keyof Verdicts;
 };
 
-const VERDICT_ROWS: VerdictRow[] = [
+const VERDICT_ROWS: readonly VerdictRow[] = [
   {
     testId: "verdict-aa-normal",
     name: "AA — Normal text",
@@ -176,16 +182,9 @@ function ColourField({
 export function ContrastChecker(): React.JSX.Element {
   const [foregroundInput, setForegroundInput] = useState(DEFAULT_FOREGROUND);
   const [backgroundInput, setBackgroundInput] = useState(DEFAULT_BACKGROUND);
-  const [lastValid, setLastValid] = useState<{
-    foreground: RGB;
-    background: RGB;
-  }>(() => {
-    const foreground = parseColor(DEFAULT_FOREGROUND);
-    const background = parseColor(DEFAULT_BACKGROUND);
-    if (!(foreground && background)) {
-      throw new Error("Default contrast checker colours failed to parse");
-    }
-    return { foreground, background };
+  const lastValidRef = useRef<{ foreground: RGB; background: RGB }>({
+    foreground: parseColor(DEFAULT_FOREGROUND) ?? FALLBACK_FOREGROUND_RGB,
+    background: parseColor(DEFAULT_BACKGROUND) ?? FALLBACK_BACKGROUND_RGB,
   });
 
   const foregroundErrorId = useId();
@@ -195,22 +194,13 @@ export function ContrastChecker(): React.JSX.Element {
   const parsedBackground = parseColor(backgroundInput);
 
   if (parsedForeground && parsedBackground) {
-    if (
-      parsedForeground.r !== lastValid.foreground.r ||
-      parsedForeground.g !== lastValid.foreground.g ||
-      parsedForeground.b !== lastValid.foreground.b ||
-      parsedBackground.r !== lastValid.background.r ||
-      parsedBackground.g !== lastValid.background.g ||
-      parsedBackground.b !== lastValid.background.b
-    ) {
-      setLastValid({
-        foreground: parsedForeground,
-        background: parsedBackground,
-      });
-    }
+    lastValidRef.current = {
+      foreground: parsedForeground,
+      background: parsedBackground,
+    };
   }
 
-  const { foreground, background } = lastValid;
+  const { foreground, background } = lastValidRef.current;
   const ratio = contrastRatio(foreground, background);
   const verdicts = evaluate(ratio);
   const foregroundCss = rgbToCss(foreground);

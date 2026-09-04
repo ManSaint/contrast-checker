@@ -308,7 +308,7 @@ export function ContrastChecker(): React.JSX.Element {
                     <span className="text-sm font-semibold text-[#e8eaed]">
                       {row.name}
                     </span>
-                    <span className="font-mono text-[12.5px] text-[#6b7280]">
+                    <span className="font-mono text-[12.5px] text-[#9aa1ad]">
                       {row.threshold}
                     </span>
                   </div>
@@ -328,7 +328,7 @@ export function ContrastChecker(): React.JSX.Element {
             })}
           </div>
 
-          <p className="text-[12.5px] leading-relaxed text-[#6b7280]">
+          <p className="text-[12.5px] leading-relaxed text-[#9aa1ad]">
             Large text = 18.66px bold or larger, or 24px or larger at any
             weight.
           </p>

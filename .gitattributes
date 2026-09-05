@@ -1,0 +1,16 @@
+# Normalize line endings to LF for all text files.
+# Without this, core.autocrlf=true checks files out as CRLF on Windows, which
+# conflicts with Biome's LF formatter and makes `bun run lint` fail unless every
+# file is rewritten before each commit. Enforcing LF in the repo and on checkout
+# keeps the working tree, the blobs, and Biome in agreement.
+* text=auto eol=lf
+
+# Binary assets must never be normalized.
+*.png binary
+*.ico binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.woff binary
+*.woff2 binary

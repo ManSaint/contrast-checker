@@ -1,14 +1,26 @@
 # contrast-checker
 
-<!-- README-STUB: replace this whole block with a real description before opening a PR -->
-> One line on what this does and who it is for.
+> Paste two colours, instantly see their WCAG contrast ratio and AA/AAA pass-fail.
 
 ## What it does
 
-Describe the problem it solves and how it works, in a short paragraph. Add a screenshot or
-a GIF here - it is the single highest-value thing in a README.
+WCAG Contrast Checker lets you paste a text colour and a background colour and see the
+WCAG 2.x contrast ratio update live as you type, with pass/fail verdicts for AA and AAA
+at both normal and large text sizes. A live preview panel renders real sample text in the
+chosen colours so you can see, not just read, the result. If you type an invalid colour,
+the last valid result stays on screen (with a note) instead of the UI going blank.
 
-## Getting started
+## Supported input formats
+
+- Hex: `#1a1a1a`, `#fff`
+- `rgb(r, g, b)`
+- `hsl(h, s%, l%)`
+
+## Screenshot
+
+![WCAG Contrast Checker](docs/screenshot.png)
+
+## Run locally
 
 ```bash
 bun install
@@ -17,23 +29,25 @@ bun run dev
 
 Open http://localhost:3000.
 
-## Commands
+## Testing
 
 | Command | Does |
 | --- | --- |
-| `bun run dev` | dev server |
-| `bun run build` | production build |
-| `bun run lint` | Biome check |
-| `bun run typecheck` | route typegen + tsc |
 | `bun run test` | unit tests (Vitest) |
 | `bun run test:e2e` | end-to-end tests (Playwright) |
 | `bun run test:a11y` | accessibility scan (axe-core, WCAG 2.2 AA) |
 
-## Testing
-
 Unit tests live beside the code they cover. End-to-end and accessibility specs live in
-`e2e/`. Every route is scanned against WCAG 2.2 A + AA - add new routes to the
-`ROUTES` array in `e2e/a11y.spec.ts`, since an unlisted route is not covered.
+`e2e/`. Every route is scanned against WCAG 2.2 A + AA — add new routes to the `ROUTES`
+array in `e2e/a11y.spec.ts`, since an unlisted route is not covered.
+
+## Other commands
+
+| Command | Does |
+| --- | --- |
+| `bun run build` | production build |
+| `bun run lint` | Biome check |
+| `bun run typecheck` | route typegen + tsc |
 
 ## Tech stack
 

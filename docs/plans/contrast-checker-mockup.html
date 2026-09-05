@@ -1,0 +1,727 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WCAG Contrast Checker — Mockup</title>
+<style>
+  :root {
+    --ground: #0f1115;
+    --surface: #171a20;
+    --surface-raised: #1c2028;
+    --border: #2a2f3a;
+    --border-input: #3a4150;
+    --text-primary: #e8eaed;
+    --text-secondary: #9aa1ad;
+    --text-tertiary: #6b7280;
+    --accent: #5eead4;
+    --accent-dim: #14b8a6;
+    --pass: #4ade80;
+    --pass-bg: rgba(74, 222, 128, 0.12);
+    --fail: #f87171;
+    --fail-bg: rgba(248, 113, 113, 0.12);
+    --error-text: #fca5a5;
+    --focus-ring: #5eead4;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", "JetBrains Mono", Consolas, monospace;
+    --sans: ui-sans-serif, "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--ground);
+    color: var(--text-primary);
+    font-family: var(--sans);
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    padding: 48px 24px 96px;
+  }
+
+  .page {
+    max-width: 1040px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 56px;
+  }
+
+  /* ---- Masthead ---- */
+  .masthead {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 24px;
+  }
+
+  .eyebrow {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-family: var(--mono);
+  }
+
+  h1 {
+    font-size: 28px;
+    line-height: 1.25;
+    font-weight: 650;
+    margin: 0;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  .masthead p {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    max-width: 60ch;
+  }
+
+  /* ---- Section labelling for the mockup doc (not part of the product UI) ---- */
+  .demo-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    margin-bottom: 20px;
+  }
+
+  .demo-label::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text-tertiary);
+    flex-shrink: 0;
+  }
+
+  .demo-label.is-error::before { background: var(--fail); }
+  .demo-label.is-error { color: var(--error-text); }
+
+  /* ---- App panel layout ---- */
+  .panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+  }
+
+  @media (min-width: 860px) {
+    .panel {
+      grid-template-columns: minmax(0, 380px) minmax(0, 1fr);
+      align-items: start;
+    }
+  }
+
+  .col-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .col-results {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* ---- Form / fields ---- */
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .field label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 0.01em;
+  }
+
+  .field-input-row {
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .swatch-btn {
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    border: 1px solid var(--border-input);
+    cursor: pointer;
+    padding: 0;
+    position: relative;
+    background-color: var(--swatch, #1a1a1a);
+    background-image:
+      linear-gradient(45deg, #333 25%, transparent 25%),
+      linear-gradient(-45deg, #333 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #333 75%),
+      linear-gradient(-45deg, transparent 75%, #333 75%);
+    background-size: 12px 12px;
+    background-position: 0 0, 0 6px, 6px -6px, -6px 0px;
+  }
+
+  .swatch-btn::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 7px;
+    background: var(--swatch, #1a1a1a);
+  }
+
+  .swatch-btn:hover { border-color: var(--text-secondary); }
+
+  .swatch-btn:focus-visible,
+  input:focus-visible,
+  button:focus-visible,
+  a:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  .field input[type="text"] {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 44px;
+    background: var(--surface-raised);
+    border: 1px solid var(--border-input);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-family: var(--mono);
+    font-size: 15px;
+    padding: 0 14px;
+  }
+
+  .field input[type="text"]::placeholder {
+    color: var(--text-tertiary);
+  }
+
+  .field input[type="text"]:hover {
+    border-color: #4b5362;
+  }
+
+  .field input[type="text"]:focus-visible {
+    border-color: var(--accent);
+  }
+
+  .field input.has-error {
+    border-color: var(--fail);
+  }
+
+  .error-note {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--error-text);
+    margin-top: 2px;
+  }
+
+  .error-note svg { flex-shrink: 0; }
+
+  /* ---- Preview swatch ---- */
+  .preview-card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .preview-card-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    padding: 12px 16px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .preview-surface {
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .preview-normal {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .preview-large {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 0;
+  }
+
+  /* ---- Results region ---- */
+  .results-region {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .ratio-card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+    padding: 28px 28px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .ratio-card-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+
+  .ratio-readout {
+    font-family: var(--mono);
+    font-size: 56px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+  }
+
+  .ratio-readout .unit {
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-left: 4px;
+  }
+
+  .verdict-grid {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--surface);
+  }
+
+  .verdict-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .verdict-row:last-child { border-bottom: none; }
+
+  .verdict-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .verdict-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .verdict-threshold {
+    font-size: 12.5px;
+    color: var(--text-tertiary);
+    font-family: var(--mono);
+  }
+
+  .verdict-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    padding: 6px 12px;
+    border-radius: 999px;
+    white-space: nowrap;
+    min-height: 24px;
+  }
+
+  .verdict-badge.pass {
+    color: var(--pass);
+    background: var(--pass-bg);
+    border: 1px solid rgba(74, 222, 128, 0.35);
+  }
+
+  .verdict-badge.fail {
+    color: var(--fail);
+    background: var(--fail-bg);
+    border: 1px solid rgba(248, 113, 113, 0.35);
+  }
+
+  .verdict-badge svg { flex-shrink: 0; }
+
+  /* ---- Footer note on the results card ---- */
+  .results-footnote {
+    font-size: 12.5px;
+    color: var(--text-tertiary);
+    line-height: 1.5;
+  }
+
+  /* ---- Example section chrome (mockup-only, explains the two states) ---- */
+  .example-section {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 0;
+  }
+
+  .mockup-footer {
+    font-size: 12.5px;
+    color: var(--text-tertiary);
+    line-height: 1.6;
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+  }
+
+  .mockup-footer code {
+    font-family: var(--mono);
+    background: var(--surface-raised);
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: var(--text-secondary);
+  }
+
+  /* ---- Reduced motion ---- */
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    input[type="text"], .swatch-btn, .verdict-badge {
+      transition: border-color 120ms ease, background-color 120ms ease;
+    }
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="masthead">
+    <span class="eyebrow">Contrast Checker</span>
+    <h1>Check text and background colours against WCAG 2.2</h1>
+    <p>Enter a text colour and a background colour as hex, rgb(), or hsl(). Results update as you type — no need to submit.</p>
+  </header>
+
+  <!-- ============================================================ -->
+  <!-- DEFAULT STATE — text #1a1a1a on background #ffffff, all pass -->
+  <!-- ============================================================ -->
+  <section class="example-section" aria-labelledby="default-heading">
+    <span class="demo-label" id="default-heading">Default state — all checks passing</span>
+
+    <div class="panel">
+      <!-- Left column: form + live preview -->
+      <div class="col-inputs">
+        <form>
+          <div class="field-group">
+
+            <div class="field">
+              <label for="fg-color-1">Text (foreground)</label>
+              <div class="field-input-row">
+                <button type="button" class="swatch-btn" style="--swatch:#1a1a1a" aria-label="Choose text colour with eyedropper, current colour #1a1a1a"></button>
+                <input type="text" id="fg-color-1" name="foreground" value="#1a1a1a" autocomplete="off" spellcheck="false" inputmode="text">
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="bg-color-1">Background</label>
+              <div class="field-input-row">
+                <button type="button" class="swatch-btn" style="--swatch:#ffffff" aria-label="Choose background colour with eyedropper, current colour #ffffff"></button>
+                <input type="text" id="bg-color-1" name="background" value="#ffffff" autocomplete="off" spellcheck="false" inputmode="text">
+              </div>
+            </div>
+
+          </div>
+        </form>
+
+        <div class="preview-card">
+          <div class="preview-card-label">Live preview</div>
+          <div class="preview-surface" style="background:#ffffff;">
+            <p class="preview-normal" style="color:#1a1a1a;">Normal text sample, 16px regular — the quick brown fox.</p>
+            <p class="preview-large" style="color:#1a1a1a;">Large text sample, 24px bold</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right column: results, role=status/aria-live -->
+      <div class="col-results" role="status" aria-live="polite">
+
+        <div class="ratio-card">
+          <span class="ratio-card-label">Contrast ratio</span>
+          <div class="ratio-readout">12.6<span class="unit">:1</span></div>
+        </div>
+
+        <div class="verdict-grid">
+          <div class="verdict-row">
+            <div class="verdict-meta">
+              <span class="verdict-name">AA — Normal text</span>
+              <span class="verdict-threshold">requires ≥ 4.5:1</span>
+            </div>
+            <span class="verdict-badge pass">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5L6.5 12L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Pass
+            </span>
+          </div>
+          <div class="verdict-row">
+            <div class="verdict-meta">
+              <span class="verdict-name">AAA — Normal text</span>
+              <span class="verdict-threshold">requires ≥ 7:1</span>
+            </div>
+            <span class="verdict-badge pass">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5L6.5 12L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Pass
+            </span>
+          </div>
+          <div class="verdict-row">
+            <div class="verdict-meta">
+              <span class="verdict-name">AA — Large text</span>
+              <span class="verdict-threshold">requires ≥ 3:1</span>
+            </div>
+            <span class="verdict-badge pass">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5L6.5 12L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Pass
+            </span>
+          </div>
+          <div class="verdict-row">
+            <div class="verdict-meta">
+              <span class="verdict-name">AAA — Large text</span>
+              <span class="verdict-threshold">requires ≥ 4.5:1</span>
+            </div>
+            <span class="verdict-badge pass">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5L6.5 12L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Pass
+            </span>
+          </div>
+        </div>
+
+        <p class="results-footnote">Large text = 18.66px bold or larger, or 24px or larger at any weight.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ============================================================ -->
+  <!-- INVALID INPUT STATE — background field has a bad value       -->
+  <!-- ============================================================ -->
+  <section class="example-section" aria-labelledby="error-heading">
+    <span class="demo-label is-error" id="error-heading">Example: invalid input state — last valid result stays visible</span>
+
+    <div class="panel">
+      <div class="col-inputs">
+        <form>
+          <div class="field-group">
+
+            <div class="field">
+              <label for="fg-color-2">Text (foreground)</label>
+              <div class="field-input-row">
+                <button type="button" class="swatch-btn" style="--swatch:#1a1a1a" aria-label="Choose text colour with eyedropper, current colour #1a1a1a"></button>
+                <input type="text" id="fg-color-2" name="foreground" value="#1a1a1a" autocomplete="off" spellcheck="false" inputmode="text">
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="bg-color-2">Background</label>
+              <div class="field-input-row">
+                <button type="button" class="swatch-btn" style="--swatch:#ffffff" aria-label="Choose background colour with eyedropper, last valid colour #ffffff"></button>
+                <input type="text" id="bg-color-2" name="background" value="notacolor" autocomplete="off" spellcheck="false" inputmode="text" class="has-error" aria-invalid="true" aria-describedby="bg-error-2">
+              </div>
+              <span class="error-note" id="bg-error-2">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.25" stroke="currentColor" stroke-width="1.5"/><path d="M8 5.2V8.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="11" r="0.9" fill="currentColor"/></svg>
+                Not a valid colour. Try a hex code (#ffffff), rgb(), or hsl() value.
+              </span>
+            </div>
+
+          </div>
+        </form>
+
+        <div class="preview-card">
+          <div class="preview-card-label">Live preview <span style="text-transform:none; font-weight:400;">— showing last valid colours</span></div>
+          <div class="preview-surface" style="background:#ffffff;">
+            <p class="preview-normal" style="color:#1a1a1a;">Normal text sample, 16px regular — the quick brown fox.</p>
+            <p class="preview-large" style="color:#1a1a1a;">Large text sample, 24px bold</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-results" role="status" aria-live="polite">
+
+        <div class="ratio-card">
+          <span class="ratio-card-label">Contrast ratio</span>
+          <div class="ratio-readout">12.6<span class="unit">:1</span></div>
+        </div>
+
+        <div class="verdict-grid">
+          <div class="verdict-row">
+            <div class="verdict-meta">
+              <span class="verdict-name">AA — Normal text</span>
+              <span class="verdict-threshold">requires ≥ 4.5:1</span>
+            </div>
+            <span class="verdict-badge pass">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5L6.5 12L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Pass
+            </span>
+          </div>
+          <div class="verdict-row">
+            <div class="verdict-meta">
+              <span class="verdict-name">AAA — Normal text</span>
+              <span class="verdict-threshold">requires ≥ 7:1</span>
+            </div>
+            <span class="verdict-badge pass">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5L6.5 12L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Pass
+            </span>
+          </div>
+          <div class="verdict-row">
+            <div class="verdict-meta">
+              <span class="verdict-name">AA — Large text</span>
+              <span class="verdict-threshold">requires ≥ 3:1</span>
+            </div>
+            <span class="verdict-badge pass">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5L6.5 12L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Pass
+            </span>
+          </div>
+          <div class="verdict-row">
+            <div class="verdict-meta">
+              <span class="verdict-name">AAA — Large text</span>
+              <span class="verdict-threshold">requires ≥ 4.5:1</span>
+            </div>
+            <span class="verdict-badge pass">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5L6.5 12L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Pass
+            </span>
+          </div>
+        </div>
+
+        <p class="results-footnote">Large text = 18.66px bold or larger, or 24px or larger at any weight. Background field is mid-edit; ratio reflects the last valid value (#ffffff) until a valid colour is entered.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- FAIL-STATE REFERENCE — shows Fail badges so both states of   -->
+  <!-- the verdict badge are visible somewhere in this document     -->
+  <!-- ============================================================ -->
+  <section class="example-section" aria-labelledby="fail-heading">
+    <span class="demo-label" id="fail-heading">Reference: low-contrast pair, showing Fail badges (#767676 on #ffffff)</span>
+
+    <div class="panel">
+      <div class="col-inputs">
+        <div class="preview-card">
+          <div class="preview-card-label">Live preview</div>
+          <div class="preview-surface" style="background:#ffffff;">
+            <p class="preview-normal" style="color:#767676;">Normal text sample, 16px regular — the quick brown fox.</p>
+            <p class="preview-large" style="color:#767676;">Large text sample, 24px bold</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-results">
+        <div class="ratio-card">
+          <span class="ratio-card-label">Contrast ratio</span>
+          <div class="ratio-readout">4.5<span class="unit">:1</span></div>
+        </div>
+
+        <div class="verdict-grid">
+          <div class="verdict-row">
+            <div class="verdict-meta">
+              <span class="verdict-name">AA — Normal text</span>
+              <span class="verdict-threshold">requires ≥ 4.5:1</span>
+            </div>
+            <span class="verdict-badge pass">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5L6.5 12L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Pass
+            </span>
+          </div>
+          <div class="verdict-row">
+            <div class="verdict-meta">
+              <span class="verdict-name">AAA — Normal text</span>
+              <span class="verdict-threshold">requires ≥ 7:1</span>
+            </div>
+            <span class="verdict-badge fail">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 4L12 12M12 4L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              Fail
+            </span>
+          </div>
+          <div class="verdict-row">
+            <div class="verdict-meta">
+              <span class="verdict-name">AA — Large text</span>
+              <span class="verdict-threshold">requires ≥ 3:1</span>
+            </div>
+            <span class="verdict-badge pass">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5L6.5 12L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Pass
+            </span>
+          </div>
+          <div class="verdict-row">
+            <div class="verdict-meta">
+              <span class="verdict-name">AAA — Large text</span>
+              <span class="verdict-threshold">requires ≥ 4.5:1</span>
+            </div>
+            <span class="verdict-badge pass">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 8.5L6.5 12L13 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Pass
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <p class="mockup-footer">
+    This is a static design mockup, not the production build. Dark mode is the primary (and only) mode shown here per the product's dark-mode-first requirement. Fonts render via system stacks (<code>ui-monospace</code> / <code>ui-sans-serif</code>) for offline preview; the implementation should use JetBrains Mono for the mono role and Inter for the sans role, per the design spec. Interactive states (hover, focus-visible, invalid) are wired with real CSS — tab through the inputs and swatch buttons to see the focus ring.
+  </p>
+
+</div>
+</body>
+</html>

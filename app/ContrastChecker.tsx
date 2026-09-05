@@ -2,7 +2,7 @@
 
 import { useId, useRef, useState } from "react";
 import { contrastRatio, evaluate, type Verdicts } from "@/lib/contrast";
-import { parseColor, type RGB } from "@/lib/parseColor";
+import { parseColor, type RGB, rgbToHex } from "@/lib/parseColor";
 
 export const DEFAULT_FOREGROUND = "#1a1a1a";
 export const DEFAULT_BACKGROUND = "#ffffff";
@@ -119,7 +119,7 @@ type ColourFieldProps = {
   label: string;
   value: string;
   onChange: (value: string) => void;
-  swatchColour: RGB | null;
+  pickerColour: RGB;
   errorId: string;
   isInvalid: boolean;
 };
@@ -129,12 +129,10 @@ function ColourField({
   label,
   value,
   onChange,
-  swatchColour,
+  pickerColour,
   errorId,
   isInvalid,
 }: ColourFieldProps): React.JSX.Element {
-  const swatchCss = swatchColour ? rgbToCss(swatchColour) : undefined;
-
   return (
     <div className="flex flex-col gap-1.5">
       <label
@@ -144,10 +142,13 @@ function ColourField({
         {label}
       </label>
       <div className="flex items-stretch gap-2.5">
-        <span
-          aria-hidden="true"
-          className="flex-none w-11 h-11 rounded-lg border border-[#5b6478]"
-          style={swatchCss ? { backgroundColor: swatchCss } : undefined}
+        <input
+          type="color"
+          aria-label={`Colour picker for ${label}`}
+          value={rgbToHex(pickerColour)}
+          onChange={(event) => onChange(event.target.value)}
+          data-testid={`picker-${id}`}
+          className="flex-none w-11 h-11 rounded-lg border border-[#5b6478] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#5eead4]"
         />
         <input
           type="text"
@@ -230,7 +231,9 @@ export function ContrastChecker(): React.JSX.Element {
                 label="Text (foreground)"
                 value={foregroundInput}
                 onChange={setForegroundInput}
-                swatchColour={parsedForeground}
+                pickerColour={
+                  parsedForeground ?? lastValidRef.current.foreground
+                }
                 errorId={foregroundErrorId}
                 isInvalid={!parsedForeground}
               />
@@ -239,7 +242,9 @@ export function ContrastChecker(): React.JSX.Element {
                 label="Background"
                 value={backgroundInput}
                 onChange={setBackgroundInput}
-                swatchColour={parsedBackground}
+                pickerColour={
+                  parsedBackground ?? lastValidRef.current.background
+                }
                 errorId={backgroundErrorId}
                 isInvalid={!parsedBackground}
               />

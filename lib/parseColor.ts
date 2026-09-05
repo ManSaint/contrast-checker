@@ -129,6 +129,12 @@ function parseHsl(input: string): RGB | null {
   return hslToRgb(h, s, l);
 }
 
+export function rgbToHex({ r, g, b }: RGB): string {
+  const toHexChannel = (channel: number): string =>
+    channel.toString(16).padStart(2, "0");
+  return `#${toHexChannel(r)}${toHexChannel(g)}${toHexChannel(b)}`;
+}
+
 export function parseColor(input: string): RGB | null {
   const normalized = input.trim().toLowerCase();
   if (normalized === "") return null;
